@@ -1,0 +1,4 @@
+*.mat
+*.xy
+*.txt
+gmt/
