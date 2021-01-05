@@ -1,4 +1,3 @@
-import pvt_noise_utils as pvt
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,16 +8,20 @@ import scipy.fftpack
 import multiprocessing
 import pyfftw
 from timeit import default_timer as timer
-import parameter_init as param
-import plotting_methods
-import pv_picker_driver
 
+import utils.plotting_methods
+import utils.synthetic_utils
+import utils.parameter_init 
+import utils.io_methods
+import utils.pvt_utils as pvt
 
 if __name__ == "__main__":
     """pool = multiprocessing.Pool(processes=4)
     files = ["CCF_GR_MOX_HU_PSZ_ZZ_2377_WN.mat","CCF_GR_MOX_HU_SOP_ZZ_722_WN.mat", "CCF_GR_MOX_HU_TRPA_ZZ_1006_WN.mat", "CCF_HU_PSZ_CR_ZAG_ZZ_441_WN.mat"]
     #files = ["CCF_HU_PSZ_CR_ZAG_ZZ_441_WN.mat"]
     pool.map(pv_picker_driver.run, files)"""
+
+    param = utils.parameter_init.Config("config.cfg")
     
     dt = param.dt
     distance = param.distance
@@ -39,10 +42,10 @@ if __name__ == "__main__":
         comment = "#",
         names=["freq","phase_vel"]
     )
-    t,ccf,freqs,phase,amp = pvt.calculate_synthetic_ccf(model, distance)
-    print(freqs.size, amp.size, phase.size,ccf.size)
+    t,ccf,freqs,phase,amp = utils.synthetic_utils.calculate_synthetic_ccf(model, distance, param)
+    #print(freqs.size, amp.size, phase.size,ccf.size)
     #ccf = pvt.add_noise(ccf,1)
-    plotting_methods.plot_synthetic(t,ccf,distance,model)
+    utils.plotting_methods.plot_synthetic(t,ccf,distance,model)
     """ obspy.signal.tf_misfit.plot_tfr(
         st=ccf[(t>0) & (t < distance/1.5)],
         w0= 5,
@@ -104,16 +107,6 @@ if __name__ == "__main__":
         max_vel=max_vel
     )
     
-    output1 = open("real_part{:.0f}.xy".format(distance),"w")
-    for i in np.arange(freqs.size):
-        output1.write("{} {}\n".format(freqs[i],a[i]))
-    output1.close()
-    
-    output2 = open("crossings{:.0f}.xy".format(distance), "w")
-    for i in freq_zeros:
-        output2.write("{} 0\n".format(i))
-    output2.close()
-
     center_branch1 = pvt.pick_closest_curve(
         model = model,
         c_branches= c_branches1,
@@ -129,7 +122,7 @@ if __name__ == "__main__":
     )
     
     if param.plot:
-        plotting_methods.plot_results(
+        utils.plotting_methods.plot_results(
             freqs=freqs,
             c_branches0 = c_branches0,
             title = "station separation: {:.2f} km".format(distance),
@@ -157,23 +150,33 @@ if __name__ == "__main__":
 
     c0, c1, c2, freq_zeros = c_branches0[mask1,:], c_branches1[mask1,:],c_branches2[mask2,:], freq_zeros
     
-    pvt.save_results_ascii(
+    utils.io_methods.save_results_ascii(
         freqs=freqs,
         pv = c1,
         filename = "hankel{:.0f}.xy".format(distance)
     )
 
-    pvt.save_results_ascii(
+    utils.io_methods.save_results_ascii(
         freqs=freqs,
         pv = c0,
         filename = "high_freq{:.0f}.xy".format(distance)
     )
 
-    pvt.save_results_ascii(
+    utils.io_methods.save_results_ascii(
         freqs=freq_zeros,
         pv = c2,
         filename = "zero_crossings{:.0f}.xy".format(distance)
     )
+
+    output1 = open("real_part{:.0f}.xy".format(distance),"w")
+    for i in np.arange(freqs.size):
+        output1.write("{} {}\n".format(freqs[i],a[i]))
+    output1.close()
+    
+    output2 = open("crossings{:.0f}.xy".format(distance), "w")
+    for i in freq_zeros:
+        output2.write("{} 0\n".format(i))
+    output2.close()
 
     output3 = open("bensen{:.0f}.xy".format(distance), "w")
     bensen_criterion= (3*np.nanmean(model["phase_vel"]))/distance # in frequency

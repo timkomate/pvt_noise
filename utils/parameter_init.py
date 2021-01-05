@@ -1,0 +1,28 @@
+import configparser
+
+class Config(object):
+    def __init__(self,config_name):
+        config = configparser.ConfigParser()
+        config.read(config_name)
+        #Data case
+        self.real_data_case = config.getboolean("CASE", "real_data_case")
+        self.plot = config.getboolean("CASE", "plot")
+
+        #Sythetic
+        self.background_model = config.get("SYNTHETIC", "background_model")
+        self.dt = config.getfloat("SYNTHETIC", "dt")
+        self.df = config.getfloat("SYNTHETIC", "df")
+        self.distance = config.getfloat("SYNTHETIC", "distance")
+
+        #General
+        self.max_period = config.getfloat("GENERAL", "max_period")
+        self.min_period =  config.getfloat("GENERAL", "min_period")
+        self.branch_num = config.getint("GENERAL", "branch_num")
+        self.branch_to_save = config.getint("GENERAL", "branch_to_save")
+        self.taper_length = config.getfloat("GENERAL", "taper_length")
+        self.h_period = config.getfloat("GENERAL", "h_period")
+        self.min_vel = config.getfloat("GENERAL", "min_vel")
+        self.max_vel = config.getfloat("GENERAL", "max_vel")
+        self.cdiff = config.getfloat("GENERAL", "cdiff")
+        self.gamma = list(map(float,config.get("GENERAL", "gamma").split(",")))
+        self.gammaw = list(map(float,config.get("GENERAL", "gammaw").split(",")))
