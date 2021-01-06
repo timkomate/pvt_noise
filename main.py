@@ -46,14 +46,14 @@ if __name__ == "__main__":
     #print(freqs.size, amp.size, phase.size,ccf.size)
     #ccf = pvt.add_noise(ccf,1)
     utils.plotting_methods.plot_synthetic(t,ccf,distance,model)
-    """ obspy.signal.tf_misfit.plot_tfr(
+    obspy.signal.tf_misfit.plot_tfr(
         st=ccf[(t>0) & (t < distance/1.5)],
         w0= 5,
         dt = 0.2,
         fmin = 1/200,
         fmax=1,
         mode="power"
-    ) """
+    )
     #c0, c1, c2, freq_zeros = pvt.calculate(t,ccf,freqs,dt,distance,model)
     
     fmax = 1./param.min_period
@@ -153,32 +153,32 @@ if __name__ == "__main__":
     utils.io_methods.save_results_ascii(
         freqs=freqs,
         pv = c1,
-        filename = "hankel{:.0f}.xy".format(distance)
+        filename = "ascii_data/hankel{:.0f}.xy".format(distance)
     )
 
     utils.io_methods.save_results_ascii(
         freqs=freqs,
         pv = c0,
-        filename = "high_freq{:.0f}.xy".format(distance)
+        filename = "ascii_data/high_freq{:.0f}.xy".format(distance)
     )
 
     utils.io_methods.save_results_ascii(
         freqs=freq_zeros,
         pv = c2,
-        filename = "zero_crossings{:.0f}.xy".format(distance)
+        filename = "ascii_data/zero_crossings{:.0f}.xy".format(distance)
     )
 
-    output1 = open("real_part{:.0f}.xy".format(distance),"w")
+    output1 = open("ascii_data/real_part{:.0f}.xy".format(distance),"w")
     for i in np.arange(freqs.size):
         output1.write("{} {}\n".format(freqs[i],a[i]))
     output1.close()
     
-    output2 = open("crossings{:.0f}.xy".format(distance), "w")
+    output2 = open("ascii_data/crossings{:.0f}.xy".format(distance), "w")
     for i in freq_zeros:
         output2.write("{} 0\n".format(i))
     output2.close()
 
-    output3 = open("bensen{:.0f}.xy".format(distance), "w")
+    output3 = open("ascii_data/bensen{:.0f}.xy".format(distance), "w")
     bensen_criterion= (3*np.nanmean(model["phase_vel"]))/distance # in frequency
     output3.write("{} {}\n".format(bensen_criterion,min_vel))
     output3.write("{} {}".format(bensen_criterion,max_vel))

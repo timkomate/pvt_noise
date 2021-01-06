@@ -2,6 +2,7 @@ import numpy as np
 import scipy.signal
 from utils.parameter_init import Config
 import utils.plotting_methods
+import utils.singal_utils
 import matplotlib.pyplot as plt
 
 def add_noise(ccf,percentage):
@@ -20,11 +21,12 @@ def calculate_synthetic_ccf(model, distance, config):
     plot_synthetic = False
     t,ccf,freqs,dt,ccf_spectra = synthetic_ccf(ccf_spectra, df, dt, plot = False)
 
-    taper = compute_taper(
+    """ taper = compute_taper(
         count = ccf.size,
         width = 1./dt * taper_length
     )
-    ccf = ccf * taper
+    ccf = ccf * taper """
+    ccf = utils.singal_utils.downweight_ends(ccf,taper_length)
     
     #Padding with zeros. Single-sided CCF -> Double-sided CCF
     t,ccf = pad_zeros(t,ccf)

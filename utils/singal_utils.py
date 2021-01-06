@@ -32,6 +32,13 @@ def compute_taper(count, width):
     )
     return (np.sin(result * np.pi / 2) + 1) / 2
 
+def downweight_ends(data, wlength):
+    w = (1 - np.cos((np.pi / wlength) * (np.arange(0,wlength,1) + 1)))/2
+    data[0:int(wlength)] = data[0:int(wlength)]*w
+    w = np.flipud(w)
+    data[-int(wlength):] = data[-int(wlength):]*w
+    return data
+
 def compute_window(freq, value, count, index, time_step):
     omega = 2 * np.pi * freq
     alpha = np.power(value,2) * omega * time_step

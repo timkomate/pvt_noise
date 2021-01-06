@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import pyfftw
-import plotting_methods
+import utils.plotting_methods
 import utils.singal_utils
 
 def pick_closest_curve(model,c_branches,freqs,fmin):

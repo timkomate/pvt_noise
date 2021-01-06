@@ -5,3 +5,6 @@ gmt/
 *.pyc
 ascii_data/
 input_data/
+.vscode/
+__pycache__/
+*.eigen
