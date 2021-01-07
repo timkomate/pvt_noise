@@ -1,4 +1,4 @@
-import plotting_methods
+import utils.plotting_methods
 import obspy.signal.tf_misfit
 import utils.pvt_utils as pvt
 import utils.parameter_init
@@ -24,8 +24,6 @@ def calculate(t,ccf,freqs,dt,distance,model,config):
     gamma = gamma_a*distance + gamma_b
     gammaw = gammaw_a*distance + gammaw_b
 
-    #print(gamma, gammaw)
-    
     [p,a] = pvt.measure_phase(
         freqs = freqs,
         t = t,
@@ -82,7 +80,7 @@ def calculate(t,ccf,freqs,dt,distance,model,config):
     )
     
     if config.plot:
-        plotting_methods.plot_results(
+        utils.plotting_methods.plot_results(
             freqs=freqs,
             c_branches0 = c_branches0,
             title = "station separation: {:.2f} km".format(distance),
@@ -114,6 +112,20 @@ def calculate(t,ccf,freqs,dt,distance,model,config):
 
 def run(path):
     param = utils.parameter_init.Config("config.cfg")
+
+    dt = param.dt
+    distance = param.distance
+
+    gamma_a,gamma_b = np.polyfit(param.gamma[0:2],param.gamma[2:],1)
+    gammaw_a,gammaw_b = np.polyfit(param.gammaw[0:2],param.gammaw[2:],1)
+
+    gamma = gamma_a*distance + gamma_b
+    gammaw = gammaw_a*distance + gammaw_b
+
+    wlength_a,wlength_b = np.polyfit(param.wlength[0:2],param.wlength[2:],1)
+    wlength = wlength_a*distance + wlength_b
+    wlength = int(wlength/dt)
+
     model = pd.read_csv(
         filepath_or_buffer = param.background_model,
         delimiter = " ",
@@ -121,7 +133,7 @@ def run(path):
         comment = "#"
     )
     model.columns = ["freq", "phase_vel"]
-    t,ccf,distance,dt,nstack,n1,s1,n2,s2 = utils.io_methods.read_measured_data(path)
+    [t,ccf,distance,dt,nstack,n1,s1,n2,s2] = utils.io_methods.read_measured_data(path)
     ccf, t = utils.singal_utils.calculate_simmetric_part(t,ccf)
     df = 1./((ccf.size) * dt)
     
@@ -130,33 +142,47 @@ def run(path):
         stop =  1./param.min_period,
         step= df
     )
-    taper = utils.singal_utils.compute_taper(
-        count = ccf.size,
-        width = 1./dt * param.taper_length
+    
+    ccf = utils.singal_utils.downweight_ends(
+        data = ccf,
+        wlength = wlength
     )
-    ccf = ccf * taper
-
+    
     #Padding with zeros. Single-sided CCF -> Double-sided CCF
     t,ccf = utils.synthetic_utils.pad_zeros(t,ccf)
 
-    obspy.signal.tf_misfit.plot_tfr(
-        st=ccf[(t>0) & (t < distance/1.5)],
-        w0= 6,
-        dt = 0.2,
-        fmin = 1/200,
-        fmax=1,
-        mode="power"
-    )
+    if param.plot:
+        obspy.signal.tf_misfit.plot_tfr(
+            st=ccf[(t>0) & (t < distance/1.5)],
+            w0= 6,
+            dt = 0.2,
+            fmin = 1/200,
+            fmax=1,
+            mode="power"
+        )
 
-    c_branches = calculate(t,ccf,freqs,dt,distance,model,param)
+    c_branches0, c_branches1, c_branches2, freq_zeros = calculate(t,ccf,freqs,dt,distance,model,param)
+    data = utils.io_methods.read_json("stationsall.json")
+    lon1 = data[n1][s1]["longitude"]
+    lat1 = data[n1][s1]["latitude"]
+
+    lon2 = data[n2][s2]["longitude"]
+    lat2 = data[n2][s2]["latitude"]
     #print(c_branches.shape,timer() - start)
-    """pvt.save_pv(
-        c_branches= c_branches,
+    fname = "pv_{}_{}_{}_{}_{:.2f}km_{}.mat".format(n1,s1,n2,s2,distance,nstack)
+    utils.io_methods.save_pv(
+        filename = fname,
+        c_branches= c_branches1,
         distance= distance,
         model = model,
         freqs = freqs,
-        gamma=8,
-        gammaw=21,
-        lat1 = 
-
-    )"""
+        gamma=gamma,
+        gammaw=gammaw,
+        lat1 = lat1,
+        lat2= lat2,
+        lon1 = lon1,
+        lon2 = lon2,
+        nstack = nstack,
+        c_zeros = c_branches2,
+        f_zeros = freq_zeros
+    )

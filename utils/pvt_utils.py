@@ -167,7 +167,7 @@ def real_part_crossings(amplitudes,freqs,distance,branch_num,min_vel,max_vel,plo
     for i in np.arange(branch_num):
         
         c_zeros[i,:] = (2*np.pi*freq_zeros*distance)/jn_zeros[2*i-adjust:freq_zeros.size + 2*i-adjust]
-        adjust = 1
+        adjust = 0
     
     c_zeros[c_zeros < min_vel] = np.nan
     c_zeros[c_zeros > max_vel] = np.nan

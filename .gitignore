@@ -8,3 +8,4 @@ input_data/
 .vscode/
 __pycache__/
 *.eigen
+*.json

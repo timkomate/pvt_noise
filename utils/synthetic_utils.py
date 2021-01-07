@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 def add_noise(ccf,percentage):
     max = np.max(np.abs(ccf))
     noise = np.random.normal(loc = 0, scale = max, size=(ccf.size)) 
-    return ccf + noise * (percentage/100) 
+    return ccf + (noise * (percentage/100))
 
 def calculate_synthetic_ccf(model, distance, config):
     fmax = 1./config.min_period
@@ -16,18 +16,10 @@ def calculate_synthetic_ccf(model, distance, config):
     df = config.df
     #distance = config.distance
     dt = config.dt
-    taper_length = config.taper_length
     ccf_spectra = synthetic_spectra(model,df,dt,distance)
     plot_synthetic = False
     t,ccf,freqs,dt,ccf_spectra = synthetic_ccf(ccf_spectra, df, dt, plot = False)
 
-    """ taper = compute_taper(
-        count = ccf.size,
-        width = 1./dt * taper_length
-    )
-    ccf = ccf * taper """
-    ccf = utils.singal_utils.downweight_ends(ccf,taper_length)
-    
     #Padding with zeros. Single-sided CCF -> Double-sided CCF
     t,ccf = pad_zeros(t,ccf)
 
@@ -44,6 +36,8 @@ def calculate_synthetic_ccf(model, distance, config):
     freqs = freqs[(fmin <= freqs) & (freqs <= fmax)]
     phase = -np.angle(ccf_spectra)
     real_part = np.real(ccf_spectra)
+    if config.add_noise:
+        ccf = add_noise(ccf,config.noise)
     return [t,ccf,freqs,phase,real_part]
 
 def compute_taper(count, width):

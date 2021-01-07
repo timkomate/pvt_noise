@@ -10,52 +10,27 @@ import pyfftw
 from timeit import default_timer as timer
 
 import utils.plotting_methods
+import utils.pvt_driver
+import utils.singal_utils
 import utils.synthetic_utils
 import utils.parameter_init 
 import utils.io_methods
 import utils.pvt_utils as pvt
 
 if __name__ == "__main__":
-    """pool = multiprocessing.Pool(processes=4)
-    files = ["CCF_GR_MOX_HU_PSZ_ZZ_2377_WN.mat","CCF_GR_MOX_HU_SOP_ZZ_722_WN.mat", "CCF_GR_MOX_HU_TRPA_ZZ_1006_WN.mat", "CCF_HU_PSZ_CR_ZAG_ZZ_441_WN.mat"]
-    #files = ["CCF_HU_PSZ_CR_ZAG_ZZ_441_WN.mat"]
-    pool.map(pv_picker_driver.run, files)"""
+    pool = multiprocessing.Pool(processes=4)
+    files = ["./input_data/CCF_GR_MOX_HU_PSZ_ZZ_2377_WN.mat","./input_data/CCF_GR_MOX_HU_SOP_ZZ_722_WN.mat", "./input_data/CCF_GR_MOX_HU_TRPA_ZZ_1006_WN.mat", "./input_data/CCF_HU_PSZ_CR_ZAG_ZZ_441_WN.mat"]
+    #files = ["./input_data/CCF_HU_PSZ_CR_ZAG_ZZ_441_WN.mat"]
+    pool.map(utils.pvt_driver.run, files)
+    #utils.pvt_driver.run(files[0])
+
+    
 
     param = utils.parameter_init.Config("config.cfg")
     
     dt = param.dt
     distance = param.distance
-    """model = pd.read_csv(
-        filepath_or_buffer = param.background_model,
-        delimiter = " ",
-        header = None,
-        comment = "#",
-        names=["mode", "period", "phase_vel", "group_vel"]
-    )
-    model["freq"] = 1./model["period"]"""
-    
-    
-    model = pd.read_csv(
-        filepath_or_buffer = param.background_model,
-        delimiter = " ",
-        header = None,
-        comment = "#",
-        names=["freq","phase_vel"]
-    )
-    t,ccf,freqs,phase,amp = utils.synthetic_utils.calculate_synthetic_ccf(model, distance, param)
-    #print(freqs.size, amp.size, phase.size,ccf.size)
-    #ccf = pvt.add_noise(ccf,1)
-    utils.plotting_methods.plot_synthetic(t,ccf,distance,model)
-    obspy.signal.tf_misfit.plot_tfr(
-        st=ccf[(t>0) & (t < distance/1.5)],
-        w0= 5,
-        dt = 0.2,
-        fmin = 1/200,
-        fmax=1,
-        mode="power"
-    )
-    #c0, c1, c2, freq_zeros = pvt.calculate(t,ccf,freqs,dt,distance,model)
-    
+
     fmax = 1./param.min_period
     fmin = 1./param.max_period
     cdiff = param.cdiff
@@ -69,6 +44,40 @@ if __name__ == "__main__":
 
     gamma = gamma_a*distance + gamma_b
     gammaw = gammaw_a*distance + gammaw_b
+
+    wlength_a,wlength_b = np.polyfit(param.wlength[0:2],param.wlength[2:],1)
+    wlength = wlength_a*distance + wlength_b
+    wlength = int(wlength/dt)
+    """model = pd.read_csv(
+        filepath_or_buffer = param.background_model,
+        delimiter = " ",
+        header = None,
+        comment = "#",
+        names=["mode", "period", "phase_vel", "group_vel"]
+    )
+    model["freq"] = 1./model["period"]"""
+    
+    
+    """ model = pd.read_csv(
+        filepath_or_buffer = param.background_model,
+        delimiter = " ",
+        header = None,
+        comment = "#",
+        names=["freq","phase_vel"]
+    )
+    t,ccf,freqs,phase,amp = utils.synthetic_utils.calculate_synthetic_ccf(model, distance, param)
+    
+    ccf = utils.singal_utils.downweight_ends(ccf,wlength)
+    #ccf = pvt.add_noise(ccf,1)
+    utils.plotting_methods.plot_synthetic(t,ccf,distance,model)
+    obspy.signal.tf_misfit.plot_tfr(
+        st=ccf[(t>0) & (t < distance/1.5)],
+        w0= 5,
+        dt = 0.2,
+        fmin = 1/200,
+        fmax=1,
+        mode="power"
+    )
 
     [p,a] = pvt.measure_phase(
         freqs = freqs,
@@ -148,7 +157,7 @@ if __name__ == "__main__":
         step = 1
     )
 
-    c0, c1, c2, freq_zeros = c_branches0[mask1,:], c_branches1[mask1,:],c_branches2[mask2,:], freq_zeros
+    c0, c1, c2 = c_branches0[mask1,:], c_branches1[mask1,:],c_branches2[mask2,:]
     
     utils.io_methods.save_results_ascii(
         freqs=freqs,
@@ -182,7 +191,7 @@ if __name__ == "__main__":
     bensen_criterion= (3*np.nanmean(model["phase_vel"]))/distance # in frequency
     output3.write("{} {}\n".format(bensen_criterion,min_vel))
     output3.write("{} {}".format(bensen_criterion,max_vel))
-    output3.close()
+    output3.close() """
 
 
 

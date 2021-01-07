@@ -1,5 +1,11 @@
 import scipy.io
 import numpy as np
+import json
+
+def read_json(json_path):
+    with open(json_path) as f:
+        data = json.load(f)
+    return data
 
 def read_measured_data(path):
     matfile = scipy.io.loadmat(
@@ -21,9 +27,11 @@ def read_measured_data(path):
         n2 = matfile["Network2"]
         return [t,ccf,distance,dt,nstack,n1,s1,n2,s2]
     
-def save_pv(c_branches,distance,model,freqs,gamma,gammaw,
-            lat1,lat2,lon1,lon2,nstack,filename):
+def save_pv(filename,c_branches,distance,model,freqs,gamma,gammaw,
+            lat1,lat2,lon1,lon2,nstack,c_zeros = None, f_zeros = None):
     dd = {
+        "c_zeros": c_zeros,
+        "f_zeros": f_zeros,
         "crayan": c_branches,
         "Dist": distance,
         "frayan": freqs,
@@ -40,7 +48,8 @@ def save_pv(c_branches,distance,model,freqs,gamma,gammaw,
     
     scipy.io.savemat(
         file_name=filename,
-        mdict=dd
+        mdict=dd,
+        appendmat = True
     )
 
 def save_results_ascii(freqs,pv,filename):

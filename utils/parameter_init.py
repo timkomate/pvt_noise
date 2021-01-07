@@ -13,7 +13,8 @@ class Config(object):
         self.dt = config.getfloat("SYNTHETIC", "dt")
         self.df = config.getfloat("SYNTHETIC", "df")
         self.distance = config.getfloat("SYNTHETIC", "distance")
-
+        self.add_noise = config.getboolean("SYNTHETIC", "add_noise")
+        self.noise = config.getfloat("SYNTHETIC", "noise")
         #General
         self.max_period = config.getfloat("GENERAL", "max_period")
         self.min_period =  config.getfloat("GENERAL", "min_period")
@@ -26,3 +27,4 @@ class Config(object):
         self.cdiff = config.getfloat("GENERAL", "cdiff")
         self.gamma = list(map(float,config.get("GENERAL", "gamma").split(",")))
         self.gammaw = list(map(float,config.get("GENERAL", "gammaw").split(",")))
+        self.wlength = list(map(float,config.get("GENERAL", "wlength").split(",")))
