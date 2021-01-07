@@ -1,6 +1,8 @@
 import scipy.io
 import numpy as np
+import pandas as pd
 import json
+import os
 
 def read_json(json_path):
     with open(json_path) as f:
@@ -26,9 +28,20 @@ def read_measured_data(path):
         n1 = matfile["Network1"]
         n2 = matfile["Network2"]
         return [t,ccf,distance,dt,nstack,n1,s1,n2,s2]
+
+def save_bg_model(fname,model):
+    model.to_csv(
+        path_or_buf = fname,
+        sep = " ",
+        columns = ["period", "phase_vel", "phase_vel"],
+        header = False,
+        index = False,
+        float_format="%.2f"
+    )
     
 def save_pv(filename,c_branches,distance,model,freqs,gamma,gammaw,
-            lat1,lat2,lon1,lon2,nstack,c_zeros = None, f_zeros = None):
+            lat1,lat2,lon1,lon2,nstack, n1, s1, n2, s2,
+            c_zeros = None, f_zeros = None):
     dd = {
         "c_zeros": c_zeros,
         "f_zeros": f_zeros,
@@ -42,12 +55,50 @@ def save_pv(filename,c_branches,distance,model,freqs,gamma,gammaw,
         "lon1": lon1,
         "lon2": lon2,
         "nstack": nstack,
+        "Network1": n1,
+        "Station1": s1,
+        "Network2": n2,
+        "Station2": s2,
         "fs": model["freq"].to_numpy(),
         "pvs": model["phase_vel"].to_numpy()
     }
     
     scipy.io.savemat(
         file_name=filename,
+        mdict=dd,
+        appendmat = True
+    )
+
+def save_pv_format(save_path,filename,c_branches,distance,model,freqs,
+            gamma,gammaw,lat1,lat2,lon1,lon2,nstack, n1, s1, n2, s2,
+            c_zeros = None, f_zeros = None):
+    dd = {
+        "c_zeros": c_zeros,
+        "f_zeros": f_zeros,
+        "crayan": c_branches,
+        "Dist": distance,
+        "frayan": freqs,
+        "gamma1": gamma,
+        "gammaw": gammaw,
+        "lat1": lat1,
+        "lat2": lat2,
+        "lon1": lon1,
+        "lon2": lon2,
+        "nstack": nstack,
+        "Network1": n1,
+        "Station1": s1,
+        "Network2": n2,
+        "Station2": s2,
+        "fs": model["freq"].to_numpy(),
+        "pvs": model["phase_vel"].to_numpy()
+    }
+
+    folder = "{}/{}-{}/".format(save_path,s1,s2)
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    
+    scipy.io.savemat(
+        file_name="{}/{}".format(folder,filename),
         mdict=dd,
         appendmat = True
     )

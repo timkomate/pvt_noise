@@ -9,3 +9,5 @@ input_data/
 __pycache__/
 *.eigen
 *.json
+pv/
+*.text

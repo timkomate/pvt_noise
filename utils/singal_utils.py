@@ -34,7 +34,7 @@ def compute_taper(count, width):
 
 def downweight_ends(data, wlength):
     w = (1 - np.cos((np.pi / wlength) * (np.arange(0,wlength,1) + 1)))/2
-    print(w,w.shape,wlength)
+    #print(w,w.shape,wlength)
     data[0:int(wlength)] = data[0:int(wlength)]*w
     w = np.flipud(w)
     data[-int(wlength):] = data[-int(wlength):]*w

@@ -20,15 +20,6 @@ import glob
 
 if __name__ == "__main__":
     param = utils.parameter_init.Config("config.cfg")
-    pool = multiprocessing.Pool(processes=4)
-    #files = ["./input_data/CCF_GR_MOX_HU_PSZ_ZZ_2377_WN.mat","./input_data/CCF_GR_MOX_HU_SOP_ZZ_722_WN.mat", "./input_data/CCF_GR_MOX_HU_TRPA_ZZ_1006_WN.mat", "./input_data/CCF_HU_PSZ_CR_ZAG_ZZ_441_WN.mat"]
-    files = glob.glob("{}*.mat".format(param.input_path))
-    print(files)
-    pool.map(utils.pvt_driver.run, files)
-
-    
-
-    
     
     dt = param.dt
     distance = param.distance
@@ -60,7 +51,7 @@ if __name__ == "__main__":
     model["freq"] = 1./model["period"]"""
     
     
-    """ model = pd.read_csv(
+    model = pd.read_csv(
         filepath_or_buffer = param.background_model,
         delimiter = " ",
         header = None,
@@ -193,8 +184,4 @@ if __name__ == "__main__":
     bensen_criterion= (3*np.nanmean(model["phase_vel"]))/distance # in frequency
     output3.write("{} {}\n".format(bensen_criterion,min_vel))
     output3.write("{} {}".format(bensen_criterion,max_vel))
-    output3.close() """
-
-
-
-#TODO
+    output3.close()

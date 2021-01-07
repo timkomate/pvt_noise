@@ -28,3 +28,7 @@ class Config(object):
         self.gamma = list(map(float,config.get("GENERAL", "gamma").split(",")))
         self.gammaw = list(map(float,config.get("GENERAL", "gammaw").split(",")))
         self.wlength = list(map(float,config.get("GENERAL", "wlength").split(",")))
+        #PATHS
+        self.input_path = config.get("PATHS", "input_path")
+        self.save_path = config.get("PATHS", "save_path")
+        self.model_path = config.get("PATHS", "model_path")
