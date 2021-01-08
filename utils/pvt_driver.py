@@ -201,3 +201,5 @@ def run(path):
             f_zeros = freq_zeros
         )
         utils.io_methods.save_bg_model(model_name,bg_model)
+    except:
+        return
