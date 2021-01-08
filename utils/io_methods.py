@@ -102,6 +102,7 @@ def save_pv_format(save_path,filename,c_branches,distance,model,freqs,
         mdict=dd,
         appendmat = True
     )
+    print("{}/{} saved".format(folder,filename))
 
 def save_results_ascii(freqs,pv,filename):
     shape = pv.shape
