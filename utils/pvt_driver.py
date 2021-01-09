@@ -139,13 +139,14 @@ def run(path):
         )
         model.columns = ["freq", "phase_vel"]
         [t,ccf,distance,dt,nstack,n1,s1,n2,s2] = utils.io_methods.read_measured_data(path)
-        
+        #print("{}.{} {}.{} distance: {}".format(n1,s1,n2,s2,distance))
         fname = "pv_{}_{}_{}_{}_{:.2f}km_{}.mat".format(n1,s1,n2,s2,distance,nstack)
         folder = "{}/{}-{}/".format(param.save_path,s1,s2)
         full_name = "{}/{}".format(folder,fname)
-        if not param.overwrite and os.path.isfile(full_name):
+        if(not param.overwrite and os.path.isfile(full_name)):
             raise utils.pvt_exceptions.DataExcist(full_name)
-        
+        if(distance < param.min_distance):
+            raise utils.pvt_exceptions.StationsTooClose(n1,s1,n2,s2)
         if not os.path.exists(folder):
             os.makedirs(folder)
         
@@ -216,5 +217,9 @@ def run(path):
     except utils.pvt_exceptions.DataExcist as e:
         print(e)
         return
+    except utils.pvt_exceptions.StationsTooClose as e:
+        print(e)
+        return
     except:
+        print("Unknown error at:{}".format(path))
         return
