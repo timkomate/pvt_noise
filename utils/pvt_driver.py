@@ -216,16 +216,20 @@ def run(path):
             f_zeros = freq_zeros
         )
         utils.io_methods.save_bg_model(model_name,bg_model)
-        logger.info("{}::{}::{}".format(path.split("/")[-1], timer() - start, 1))
+        logger.info("{}::{:.2f}::{}::{}".format(path.split("/")[-1],distance, timer() - start, 1))
     except utils.pvt_exceptions.DataExcist as e:
         print(e)
-        logger.info("{}::{}::{}".format(path.split("/")[-1], timer() - start, 2))
+        logger.info("{}::{:.2f}::{}::{}".format(path.split("/")[-1],distance, timer() - start, 2))
         return
     except utils.pvt_exceptions.StationsTooClose as e:
         print(e)
-        logger.info("{}::{}::{}".format(path.split("/")[-1], timer() - start, 3))
+        logger.info("{}::{:.2f}::{}::{}".format(path.split("/")[-1],distance, timer() - start, 3))
+        return
+    except IndexError as e:
+        print(e)
+        logger.info("{}::{:.2f}::{}::{}".format(path.split("/")[-1],distance, timer() - start, 4))
         return
     except:
-        logger.info("{}::{}::{}".format(path.split("/")[-1], timer() - start, 4))
+        logger.info("{}::{:.2f}::{}::{}".format(path.split("/")[-1],distance, timer() - start, 5))
         print("Unknown error at:{}".format(path))
         return
