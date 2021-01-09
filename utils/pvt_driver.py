@@ -6,9 +6,11 @@ import utils.io_methods
 import utils.synthetic_utils
 import utils.singal_utils
 import utils.model_utils as mu
+import utils.pvt_exceptions
 import numpy as np
 import pandas as pd
 from timeit import default_timer as timer
+import os
 
 def calculate(t,ccf,freqs,dt,distance,model,config):
     fmax = 1./config.min_period
@@ -136,6 +138,16 @@ def run(path):
         )
         model.columns = ["freq", "phase_vel"]
         [t,ccf,distance,dt,nstack,n1,s1,n2,s2] = utils.io_methods.read_measured_data(path)
+        
+        fname = "pv_{}_{}_{}_{}_{:.2f}km_{}.mat".format(n1,s1,n2,s2,distance,nstack)
+        folder = "{}/{}-{}/".format(param.save_path,s1,s2)
+        full_name = "{}/{}".format(folder,fname)
+        if not param.overwrite and os.path.isfile(full_name):
+            raise utils.pvt_exceptions.DataExcist(path)
+        
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        
         ccf, t = utils.singal_utils.calculate_simmetric_part(t,ccf)
         df = 1./((ccf.size) * dt)
         
@@ -178,10 +190,9 @@ def run(path):
         model_name = "{}/{}-{}/{}-{}.xy".format(param.save_path,s1,s2,s1,s2)
         
         #print(c_branches.shape,timer() - start)
-        fname = "pv_{}_{}_{}_{}_{:.2f}km_{}.mat".format(n1,s1,n2,s2,distance,nstack)
+        
         utils.io_methods.save_pv_format(
-            save_path = param.save_path,
-            filename = fname,
+            filename = full_name,
             c_branches= c_branches1,
             distance= distance,
             model = model,
@@ -201,5 +212,8 @@ def run(path):
             f_zeros = freq_zeros
         )
         utils.io_methods.save_bg_model(model_name,bg_model)
+    except utils.pvt_exceptions.DataExcist as e:
+        print(e)
+        return
     except:
         return

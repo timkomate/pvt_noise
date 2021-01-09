@@ -7,6 +7,7 @@ class Config(object):
         #Data case
         self.real_data_case = config.getboolean("CASE", "real_data_case")
         self.plot = config.getboolean("CASE", "plot")
+        self.overwrite = config.getboolean("CASE", "overwrite")
 
         #Sythetic
         self.background_model = config.get("SYNTHETIC", "background_model")

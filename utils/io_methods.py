@@ -69,7 +69,7 @@ def save_pv(filename,c_branches,distance,model,freqs,gamma,gammaw,
         appendmat = True
     )
 
-def save_pv_format(save_path,filename,c_branches,distance,model,freqs,
+def save_pv_format(filename,c_branches,distance,model,freqs,
             gamma,gammaw,lat1,lat2,lon1,lon2,nstack, n1, s1, n2, s2,
             c_zeros = None, f_zeros = None):
     dd = {
@@ -92,17 +92,13 @@ def save_pv_format(save_path,filename,c_branches,distance,model,freqs,
         "fs": model["freq"].to_numpy(),
         "pvs": model["phase_vel"].to_numpy()
     }
-
-    folder = "{}/{}-{}/".format(save_path,s1,s2)
-    if not os.path.exists(folder):
-        os.makedirs(folder)
     
     scipy.io.savemat(
-        file_name="{}/{}".format(folder,filename),
+        file_name=filename,
         mdict=dd,
         appendmat = True
     )
-    print("{}/{} saved".format(folder,filename))
+    print("{} saved".format(filename))
 
 def save_results_ascii(freqs,pv,filename):
     shape = pv.shape
