@@ -22,12 +22,12 @@ def read_measured_data(path):
     s1 = matfile["Station1"]
     s2 = matfile["Station2"]
     try:
-        cutvec = matfile["cutvec"]
-        return [t,ccf,distance,dt,nstack,s1,s2,cutvec]
-    except:
         n1 = matfile["Network1"]
         n2 = matfile["Network2"]
         return [t,ccf,distance,dt,nstack,n1,s1,n2,s2]
+    except:
+        cutvec = matfile["cutvec"]
+        return [t,ccf,distance,dt,nstack,s1,s2,cutvec]
 
 def save_bg_model(fname,model):
     model.to_csv(

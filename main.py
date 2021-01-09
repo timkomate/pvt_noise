@@ -23,7 +23,7 @@ if __name__ == "__main__":
     pool = multiprocessing.Pool(processes=4)
     #files = ["./input_data/CCF_GR_MOX_HU_PSZ_ZZ_2377_WN.mat","./input_data/CCF_GR_MOX_HU_SOP_ZZ_722_WN.mat", "./input_data/CCF_GR_MOX_HU_TRPA_ZZ_1006_WN.mat", "./input_data/CCF_HU_PSZ_CR_ZAG_ZZ_441_WN.mat"]
     files = glob.glob("{}*.mat".format(param.input_path))
-    print(files)
+    #print(files)
     pool.map(utils.pvt_driver.run, files)
 
 #TODO

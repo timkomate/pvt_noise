@@ -115,6 +115,7 @@ def calculate(t,ccf,freqs,dt,distance,model,config):
 
 def run(path):
     try:
+        print("working on: {}".format(path))
         param = utils.parameter_init.Config("config.cfg")
 
         dt = param.dt
@@ -143,7 +144,7 @@ def run(path):
         folder = "{}/{}-{}/".format(param.save_path,s1,s2)
         full_name = "{}/{}".format(folder,fname)
         if not param.overwrite and os.path.isfile(full_name):
-            raise utils.pvt_exceptions.DataExcist(path)
+            raise utils.pvt_exceptions.DataExcist(full_name)
         
         if not os.path.exists(folder):
             os.makedirs(folder)
@@ -175,7 +176,7 @@ def run(path):
                 mode="power"
             )
 
-        c_branches0, c_branches1, c_branches2, freq_zeros = calculate(t,ccf,freqs,dt,distance,model,param)
+        _, c_branches1, c_branches2, freq_zeros = calculate(t,ccf,freqs,dt,distance,model,param)
         data = utils.io_methods.read_json("stationsall.json")
         
         lon1 = data[n1][s1]["longitude"]

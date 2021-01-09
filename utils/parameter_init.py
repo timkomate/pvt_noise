@@ -17,6 +17,7 @@ class Config(object):
         self.add_noise = config.getboolean("SYNTHETIC", "add_noise")
         self.noise = config.getfloat("SYNTHETIC", "noise")
         #General
+        self.cpus = config.getint("GENERAL", "cpus")
         self.max_period = config.getfloat("GENERAL", "max_period")
         self.min_period =  config.getfloat("GENERAL", "min_period")
         self.branch_num = config.getint("GENERAL", "branch_num")
