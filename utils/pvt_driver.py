@@ -5,6 +5,7 @@ import utils.parameter_init
 import utils.io_methods
 import utils.synthetic_utils
 import utils.singal_utils
+from utils.setup_logger import logger
 import utils.model_utils as mu
 import utils.pvt_exceptions
 import numpy as np
@@ -114,6 +115,7 @@ def calculate(t,ccf,freqs,dt,distance,model,config):
 
 
 def run(path):
+    start = timer()
     try:
         print("working on: {}".format(path))
         param = utils.parameter_init.Config("config.cfg")
@@ -214,12 +216,16 @@ def run(path):
             f_zeros = freq_zeros
         )
         utils.io_methods.save_bg_model(model_name,bg_model)
+        logger.info("{}::{}::{}".format(path.split("/")[-1], timer() - start, 1))
     except utils.pvt_exceptions.DataExcist as e:
         print(e)
+        logger.info("{}::{}::{}".format(path.split("/")[-1], timer() - start, 2))
         return
     except utils.pvt_exceptions.StationsTooClose as e:
         print(e)
+        logger.info("{}::{}::{}".format(path.split("/")[-1], timer() - start, 3))
         return
     except:
+        logger.info("{}::{}::{}".format(path.split("/")[-1], timer() - start, 4))
         print("Unknown error at:{}".format(path))
         return
