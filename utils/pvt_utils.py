@@ -149,7 +149,8 @@ def high_freq_approx(phase,freqs,distance,branch_num,min_vel,max_vel):
     p_branches = p_branches + (np.pi / 4)
     c_branches = c_branches / p_branches
     c_branches[c_branches < min_vel] = np.nan
-    c_branches[c_branches > max_vel] = np.nan
+    #c_branches[c_branches > max_vel] = np.nan
+    
     return c_branches
 
 def real_part_crossings(amplitudes,freqs,distance,branch_num,min_vel,max_vel,plot = False):
@@ -170,9 +171,8 @@ def real_part_crossings(amplitudes,freqs,distance,branch_num,min_vel,max_vel,plo
         adjust = 0
     
     c_zeros[c_zeros < min_vel] = np.nan
-    c_zeros[c_zeros > max_vel] = np.nan
+    #c_zeros[c_zeros > max_vel] = np.nan
 
-    
     if plot:
         plt.plot(freqs, amplitudes)
         plt.show()
