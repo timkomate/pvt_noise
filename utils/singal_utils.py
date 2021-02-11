@@ -2,25 +2,30 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.signal
 
-def calculate_simmetric_part(t,ccf, plot = False):
-    ccf_acausal = ccf[t <= 0]
-    ccf_causal = ccf[t >= 0]
-    ccf_simmetric = 1./2 * (ccf_causal + np.flip(ccf_acausal))
-    t_simmetric = t[t >= 0]
-    ccf_simmetric = scipy.signal.detrend(
-        data = ccf_simmetric,
+def calculate_simmetric_part(t,ccf, ccf_part, plot = False):
+    t_positive = t[t >= 0]
+    if (ccf_part == "acausal"):
+        ccf_p = np.flip(ccf[t <= 0])
+    if (ccf_part == "causal"):
+        ccf_p = ccf[t >= 0]
+    if (ccf_part == "simmetric"):
+        ccf_acausal = np.flip(ccf[t <= 0])
+        ccf_causal = ccf[t >= 0]
+        ccf_p = 1./2 * (ccf_causal + (ccf_acausal))
+    ccf_p = scipy.signal.detrend(
+        data = ccf_p,
         type="linear"
     )
-    ccf_simmetric = ccf_simmetric - np.mean(ccf_simmetric)
-    if plot:
+    ccf_p = ccf_p - np.mean(ccf_p)
+    if (plot and ccf_part == "simmetric") :
         fig, axs = plt.subplots(4)
         fig.suptitle("Original – causal – acausal – simmetric")
         axs[0].plot(t,ccf)
-        axs[1].plot(t_simmetric,ccf_causal)
-        axs[2].plot(-1*t_simmetric, ccf_acausal)
-        axs[3].plot(t_simmetric, ccf_simmetric)
+        axs[1].plot(t_positive,ccf_causal)
+        axs[2].plot(-1*t_positive, ccf_acausal)
+        axs[3].plot(t_positive, ccf_p)
         plt.show()
-    return ccf_simmetric,t_simmetric
+    return ccf_p,t_positive
 
 def compute_taper(count, width):
     result = np.ones(count)
@@ -34,7 +39,6 @@ def compute_taper(count, width):
 
 def downweight_ends(data, wlength):
     w = (1 - np.cos((np.pi / wlength) * (np.arange(0,wlength,1) + 1)))/2
-    #print(w,w.shape,wlength)
     data[0:int(wlength)] = data[0:int(wlength)]*w
     w = np.flipud(w)
     data[-int(wlength):] = data[-int(wlength):]*w

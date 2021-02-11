@@ -3,6 +3,7 @@ import scipy.signal
 from utils.parameter_init import Config
 import utils.plotting_methods
 import utils.singal_utils
+import scipy.special
 import matplotlib.pyplot as plt
 
 def add_noise(ccf,percentage):
@@ -16,7 +17,7 @@ def calculate_synthetic_ccf(model, distance, config):
     df = config.df
     #distance = config.distance
     dt = config.dt
-    ccf_spectra = synthetic_spectra(model,df,dt,distance)
+    ccf_spectra = synthetic_spectra(model,df,dt,distance, scipy.special.hankel2)
     plot_synthetic = False
     t,ccf,freqs,dt,ccf_spectra = synthetic_ccf(ccf_spectra, df, dt, plot = False)
 
@@ -66,7 +67,7 @@ def pad_zeros(t,ccf):
     )
     return [t_double_sided, ccf_double_sided]
 
-def synthetic_spectra(model, df, dt, distance):
+def synthetic_spectra(model, df, dt, distance,c_func):
     #pv = np.flip(model["phase_vel"].to_numpy())
     #freqs_pv = np.flip(model["freq"].to_numpy())
     pv = (model["phase_vel"].to_numpy())
@@ -76,7 +77,7 @@ def synthetic_spectra(model, df, dt, distance):
     l = int(n//2 + 1)
 
     freqs = np.linspace(
-        start = 1,
+        start = 0,
         stop = l,
         num = l
     )
@@ -89,12 +90,8 @@ def synthetic_spectra(model, df, dt, distance):
         fp = pv
     )
     
-    spectra = scipy.special.hankel2(0,(freqs*2*np.pi / pv_int) * distance)
-    spectra = np.pad(
-        array = spectra,
-        pad_width=(0,l - spectra.size),
-        mode = "constant"
-    )
+    spectra = c_func(0,(freqs*2*np.pi / pv_int) * distance)
+
     mask = np.isnan(spectra)
     spectra[mask] = 0
     return spectra
@@ -116,7 +113,7 @@ def synthetic_ccf(spectra, df, dt, plot = False):
 
     freqs = np.fft.fftfreq(t.size,dt)
 
-    ccf = np.fft.ifft(spectra ,n )
+    ccf = np.fft.irfft(spectra, n)
     if plot:
         plt.plot(t,ccf)
         plt.show()

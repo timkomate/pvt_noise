@@ -5,9 +5,9 @@ class Config(object):
         config = configparser.ConfigParser()
         config.read(config_name)
         #Data case
-        self.real_data_case = config.getboolean("CASE", "real_data_case")
         self.plot = config.getboolean("CASE", "plot")
         self.overwrite = config.getboolean("CASE", "overwrite")
+        self.save_plots = config.getboolean("CASE", "save_plots")
 
         #Sythetic
         self.background_model = config.get("SYNTHETIC", "background_model")
@@ -17,12 +17,12 @@ class Config(object):
         self.add_noise = config.getboolean("SYNTHETIC", "add_noise")
         self.noise = config.getfloat("SYNTHETIC", "noise")
         #General
+        self.ccf_part = config.get("GENERAL", "ccf_part")
         self.cpus = config.getint("GENERAL", "cpus")
         self.max_period = config.getfloat("GENERAL", "max_period")
         self.min_period =  config.getfloat("GENERAL", "min_period")
         self.branch_num = config.getint("GENERAL", "branch_num")
         self.branch_to_save = config.getint("GENERAL", "branch_to_save")
-        self.taper_length = config.getfloat("GENERAL", "taper_length")
         self.h_period = config.getfloat("GENERAL", "h_period")
         self.min_vel = config.getfloat("GENERAL", "min_vel")
         self.max_vel = config.getfloat("GENERAL", "max_vel")

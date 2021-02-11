@@ -13,3 +13,5 @@ pv/
 *.text
 logs/
 pvt_test.py
+numerical_test.py
+*.png

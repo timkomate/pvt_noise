@@ -83,21 +83,6 @@ def calculate(t,ccf,freqs,dt,distance,model,config):
         fmin = fmin
     )
     
-    if config.plot:
-        utils.plotting_methods.plot_results(
-            freqs=freqs,
-            c_branches0 = c_branches0,
-            title = "station separation: {:.2f} km".format(distance),
-            distance = distance,
-            model= model,
-            c_branches1=c_branches1,
-            c_branches2=c_branches2,
-            freq_zeros=freq_zeros,
-            wlengths=np.array([1,2,3]),
-            fmin = fmin,
-            fmax = fmax
-        )
-    
     mask1 = np.arange(
         start= center_branch1-config.branch_to_save,
         stop = center_branch1+config.branch_to_save+1,
@@ -120,28 +105,33 @@ def run(path):
         print("working on: {}".format(path))
         param = utils.parameter_init.Config("config.cfg")
 
-        dt = param.dt
-        distance = param.distance
-
         gamma_a,gamma_b = np.polyfit(param.gamma[0:2],param.gamma[2:],1)
         gammaw_a,gammaw_b = np.polyfit(param.gammaw[0:2],param.gammaw[2:],1)
 
+        wlength_a,wlength_b = np.polyfit(param.wlength[0:2],param.wlength[2:],1)
+        
+        data = utils.io_methods.read_json("stationsall.json")
+        
+        
+
+        [t,ccf,distance,dt,nstack,n1,s1,n2,s2] = utils.io_methods.read_measured_data(path)
+
+        lon1 = data[n1][s1]["longitude"]
+        lat1 = data[n1][s1]["latitude"]
+        lon2 = data[n2][s2]["longitude"]
+        lat2 = data[n2][s2]["latitude"]
+
+        pattern = "eigen_lon{}_lat{}_S.eigen"
+        points = mu.find_points(lon1,lat1, lon2,lat2)
+        bg_model = mu.average_model(points, param.model_path, pattern)
+        
         gamma = gamma_a*distance + gamma_b
         gammaw = gammaw_a*distance + gammaw_b
-
-        wlength_a,wlength_b = np.polyfit(param.wlength[0:2],param.wlength[2:],1)
         wlength = wlength_a*distance + wlength_b
         wlength = int(wlength/dt)
 
-        model = pd.read_csv(
-            filepath_or_buffer = param.background_model,
-            delimiter = " ",
-            header = None,
-            comment = "#"
-        )
-        model.columns = ["freq", "phase_vel"]
-        [t,ccf,distance,dt,nstack,n1,s1,n2,s2] = utils.io_methods.read_measured_data(path)
-        #print("{}.{} {}.{} distance: {}".format(n1,s1,n2,s2,distance))
+        
+
         fname = "pv_{}_{}_{}_{}_{:.2f}km_{}.mat".format(n1,s1,n2,s2,distance,nstack)
         folder = "{}/{}-{}/".format(param.save_path,s1,s2)
         full_name = "{}/{}".format(folder,fname)
@@ -152,7 +142,7 @@ def run(path):
         if not os.path.exists(folder):
             os.makedirs(folder)
         
-        ccf, t = utils.singal_utils.calculate_simmetric_part(t,ccf)
+        ccf, t = utils.singal_utils.calculate_simmetric_part(t,ccf,param.ccf_part)
         df = 1./((ccf.size) * dt)
         
         freqs = np.arange(
@@ -179,18 +169,17 @@ def run(path):
                 mode="power"
             )
 
-        _, c_branches1, c_branches2, freq_zeros = calculate(t,ccf,freqs,dt,distance,model,param)
-        data = utils.io_methods.read_json("stationsall.json")
+        _, c_branches1, c_branches2, freq_zeros = calculate(t,ccf,freqs,dt,distance,bg_model,param)
+
+        if(param.plot):
+            fig1 = utils.plotting_methods.plot_pv(
+                pv1 = (freqs, c_branches1),
+                pv3= (freq_zeros,c_branches2),
+                distance=distance,
+                title="{}.{}-{}.{}: {:.2f}km".format(n1,s1,n2,s2,distance)
+            )
+            plt.figure.savefig("./figg")
         
-        lon1 = data[n1][s1]["longitude"]
-        lat1 = data[n1][s1]["latitude"]
-
-        lon2 = data[n2][s2]["longitude"]
-        lat2 = data[n2][s2]["latitude"]
-
-        pattern = "eigen_lon{}_lat{}_S.eigen"
-        points = mu.find_points(lon1,lat1, lon2,lat2)
-        bg_model = mu.average_model(points, param.model_path, pattern)
         model_name = "{}/{}-{}/{}-{}.xy".format(param.save_path,s1,s2,s1,s2)
         
         #print(c_branches.shape,timer() - start)
@@ -199,7 +188,7 @@ def run(path):
             filename = full_name,
             c_branches= c_branches1,
             distance= distance,
-            model = model,
+            model = bg_model,
             freqs = freqs,
             gamma=gamma,
             gammaw=gammaw,

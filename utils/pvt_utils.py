@@ -125,13 +125,13 @@ def measure_phase(freqs, t,ccf,dt,distance,gamma,gammaw):
             plt.pause(0.05)
         
         #measure the phase
-        ccf_w = ccf_w
+        #ccf_w = ccf_w
         spectra = pyfftw.interfaces.numpy_fft.fft(ccf_w)
         fft_freq = np.fft.fftfreq(ccf_w.size,dt)
         #freq_index = int(np.round(f/df))
         freq_index = np.argmin(np.abs(fft_freq - f))
-        p[i] = np.angle(spectra[(freq_index) - 1])  + np.pi
-        a[i] = np.real(spectra[(freq_index) - 1])
+        p[i] = np.angle(spectra[(freq_index)]) 
+        a[i] = np.real(spectra[(freq_index)])
         #print("{} {} {}".format(f,p[i],freq_index - 1))
         #p[i] = np.angle(spectra[(2*freq_index)])  + np.pi
         i += 1
@@ -148,7 +148,7 @@ def high_freq_approx(phase,freqs,distance,branch_num,min_vel,max_vel):
     p_branches = (p_branches.transpose() - branches).transpose()
     p_branches = p_branches + (np.pi / 4)
     c_branches = c_branches / p_branches
-    c_branches[c_branches < min_vel] = np.nan
+    #c_branches[c_branches < min_vel] = np.nan
     #c_branches[c_branches > max_vel] = np.nan
     
     return c_branches
@@ -168,9 +168,9 @@ def real_part_crossings(amplitudes,freqs,distance,branch_num,min_vel,max_vel,plo
     for i in np.arange(branch_num):
         
         c_zeros[i,:] = (2*np.pi*freq_zeros*distance)/jn_zeros[2*i-adjust:freq_zeros.size + 2*i-adjust]
-        adjust = 0
+        adjust = 1
     
-    c_zeros[c_zeros < min_vel] = np.nan
+    #c_zeros[c_zeros < min_vel] = np.nan
     #c_zeros[c_zeros > max_vel] = np.nan
 
     if plot:

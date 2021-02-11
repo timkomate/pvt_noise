@@ -65,7 +65,7 @@ if __name__ == "__main__":
     utils.plotting_methods.plot_synthetic(t,ccf,distance,model)
     obspy.signal.tf_misfit.plot_tfr(
         st=ccf[(t>0) & (t < distance/1.5)],
-        w0= 5,
+        w0= 6,
         dt = 0.2,
         fmin = 1/200,
         fmax=1,
