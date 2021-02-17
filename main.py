@@ -23,7 +23,5 @@ if __name__ == "__main__":
     pool = multiprocessing.Pool(processes=param.cpus)
     files = glob.glob("{}*.mat".format(param.input_path))
     pool.map(utils.pvt_driver.run, files)
-    pool.close()
-    pool.join()
 
 #TODO

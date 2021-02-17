@@ -111,8 +111,6 @@ def run(path):
         wlength_a,wlength_b = np.polyfit(param.wlength[0:2],param.wlength[2:],1)
         
         data = utils.io_methods.read_json("stationsall.json")
-        
-        
 
         [t,ccf,distance,dt,nstack,n1,s1,n2,s2] = utils.io_methods.read_measured_data(path)
 
@@ -139,8 +137,6 @@ def run(path):
             raise utils.pvt_exceptions.DataExcist(full_name)
         if(distance < param.min_distance):
             raise utils.pvt_exceptions.StationsTooClose(n1,s1,n2,s2)
-        if not os.path.exists(folder):
-            os.makedirs(folder)
         
         ccf, t = utils.singal_utils.calculate_simmetric_part(t,ccf,param.ccf_part)
         df = 1./((ccf.size) * dt)
@@ -182,7 +178,8 @@ def run(path):
         
         model_name = "{}/{}-{}/{}-{}.xy".format(param.save_path,s1,s2,s1,s2)
         
-        #print(c_branches.shape,timer() - start)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
         
         utils.io_methods.save_pv_format(
             filename = full_name,
