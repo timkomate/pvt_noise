@@ -49,21 +49,20 @@ def plot_results(freqs,c_branches0,distance,title,
     plt.title(title)
     plt.show()
 
-def plot_pv(pv1, distance, pv2= None, pv3 = None, title = "", bg_model = None,
+def plot_pv(ccf,pv1, distance, pv2= None, pv3 = None, title = "", bg_model = None,
             fmin = None, fmax = None, wlengths = np.array([]),
             maxvel = 8, minvel = 0):
-    f, ax = plt.subplots()
-    if(pv1 != None):
-        #pv1[1][minvel < pv1[1] < maxvel] = None
-        ax.plot(pv1[0], pv1[1].transpose(), 'gray')
+    f, ax = plt.subplots(2)
+    f.set_size_inches(10, 15)
+    
+    ax[0].plot(ccf[0], ccf[1], 'black')
+    ax[1].plot(pv1[0], pv1[1].transpose(), 'gray')
     if(pv2 != None):
-        #pv2[1][minvel < pv2[1] < maxvel] = None
-        ax.plot(pv2[0], pv2[1].transpose(), 'red')
+        ax[1].plot(pv2[0], pv2[1].transpose(), 'red')
     if(pv3 != None):
-        #pv3[1][minvel < pv3[1] < maxvel] = None
-        ax.plot(pv3[0], pv3[1].transpose(), "green")
-    if(bg_model != None):
-        plt.plot(model["freq"], model["phase_vel"], "blue",
+        ax[1].plot(pv3[0], pv3[1].transpose(), "green")
+    if(type(bg_model) != type(None)):
+        plt.plot(bg_model["freq"], bg_model["phase_vel"], "blue",
             linestyle = "dashed")
     if wlengths.size:
         plt.vlines(
@@ -74,11 +73,16 @@ def plot_pv(pv1, distance, pv2= None, pv3 = None, title = "", bg_model = None,
             linestyles = "dashed",
         )
     
-    ax.set_ylim([0,8])
-    #ax.xlim([fmin,fmax])
-    ax.set_xlabel("Frequency [Hz]")
-    ax.set_ylabel("Phase velocity [km/s]")
-    ax.set_title(title)
+    ax[0].set_xlim([0,np.max(ccf[0])])
+    ax[0].set_title(title)
+    ax[0].set_xlabel("Time [s]")
+    ax[0].set_ylabel("Amplitude")
+    
+    ax[1].set_ylim([0,8])
+    ax[1].set_xlim([fmin,fmax])
+    ax[1].set_xlabel("Frequency [Hz]")
+    ax[1].set_ylabel("Phase velocity [km/s]")
+    
     return ax
 
 

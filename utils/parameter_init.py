@@ -22,7 +22,6 @@ class Config(object):
         self.max_period = config.getfloat("GENERAL", "max_period")
         self.min_period =  config.getfloat("GENERAL", "min_period")
         self.branch_num = config.getint("GENERAL", "branch_num")
-        self.branch_to_save = config.getint("GENERAL", "branch_to_save")
         self.h_period = config.getfloat("GENERAL", "h_period")
         self.min_vel = config.getfloat("GENERAL", "min_vel")
         self.max_vel = config.getfloat("GENERAL", "max_vel")

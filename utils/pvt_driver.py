@@ -13,7 +13,10 @@ import pandas as pd
 from timeit import default_timer as timer
 import os
 
+import matplotlib.pyplot as plt
+
 def calculate(t,ccf,freqs,dt,distance,model,config):
+    debug = False
     fmax = 1./config.min_period
     fmin = 1./config.max_period
     cdiff = config.cdiff
@@ -69,7 +72,7 @@ def calculate(t,ccf,freqs,dt,distance,model,config):
         max_vel=max_vel
     )
 
-    center_branch1 = pvt.pick_closest_curve(
+    """center_branch1 = pvt.pick_closest_curve(
         model = model,
         c_branches= c_branches1,
         freqs = freqs,
@@ -93,9 +96,25 @@ def calculate(t,ccf,freqs,dt,distance,model,config):
         start= center_branch2-config.branch_to_save,
         stop = center_branch2+config.branch_to_save+1,
         step = 1
-    )
+    )"""
+
+    #c_branches1[c_branches1 < min_vel] = np.nan
+    #c_branches1[c_branches1 > max_vel] = np.nan
+    if debug:
+        fig1 = utils.plotting_methods.plot_pv(
+            ccf = ([1],[1]),
+            fmin=1./config.max_period,
+            fmax=1./config.min_period,
+            pv1 = (freqs, c_branches1),
+            pv2 = (freq_zeros,c_branches2),
+            distance=distance,
+            #wlengths= np.array([1,2,3]),
+            #title="{}.{}-{}.{}: {:.2f}km".format(n1,s1,n2,s2,distance),
+            #bg_model=bg_model
+        )
+        plt.show()
     
-    return c_branches0[mask1,:], c_branches1[mask1,:],c_branches2[mask2,:], freq_zeros
+    return c_branches0, c_branches1,c_branches2, freq_zeros
 
 
 
@@ -113,6 +132,9 @@ def run(path):
         data = utils.io_methods.read_json("stationsall.json")
 
         [t,ccf,distance,dt,nstack,n1,s1,n2,s2] = utils.io_methods.read_measured_data(path)
+
+        if(distance < param.min_distance):
+            raise utils.pvt_exceptions.StationsTooClose(n1,s1,n2,s2)
 
         lon1 = data[n1][s1]["longitude"]
         lat1 = data[n1][s1]["latitude"]
@@ -133,11 +155,10 @@ def run(path):
         fname = "pv_{}_{}_{}_{}_{:.2f}km_{}.mat".format(n1,s1,n2,s2,distance,nstack)
         folder = "{}/{}-{}/".format(param.save_path,s1,s2)
         full_name = "{}/{}".format(folder,fname)
+        
         if(not param.overwrite and os.path.isfile(full_name)):
             raise utils.pvt_exceptions.DataExcist(full_name)
-        if(distance < param.min_distance):
-            raise utils.pvt_exceptions.StationsTooClose(n1,s1,n2,s2)
-        
+                
         ccf, t = utils.singal_utils.calculate_simmetric_part(t,ccf,param.ccf_part)
         df = 1./((ccf.size) * dt)
         

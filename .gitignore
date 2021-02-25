@@ -16,3 +16,4 @@ pvt_test.py
 numerical_test.py
 *.png
 ccf_part_test.py
+figs/

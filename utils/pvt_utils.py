@@ -88,7 +88,6 @@ def measure_phase(freqs, t,ccf,dt,distance,gamma,gammaw):
         shape = freqs.shape
     )
     i = 0
-    #df = 1./((ccf.size) * dt)
     for f in freqs:
         pyfftw.interfaces.cache.enable()
         #Constructing gauss filter
@@ -115,7 +114,6 @@ def measure_phase(freqs, t,ccf,dt,distance,gamma,gammaw):
         weights = weights[ccf.size//2:-1*ccf.size//2 + 1]
         
         if False:
-            #fig = plt.figure(1)
             plt.clf()
             plt.plot(t,ccf / np.max(np.abs(ccf)))
             plt.plot(t,weights / np.max(np.abs(weights)))
@@ -125,50 +123,46 @@ def measure_phase(freqs, t,ccf,dt,distance,gamma,gammaw):
             plt.pause(0.05)
         
         #measure the phase
-        #ccf_w = ccf_w
         spectra = pyfftw.interfaces.numpy_fft.fft(ccf_w)
         fft_freq = np.fft.fftfreq(ccf_w.size,dt)
-        #freq_index = int(np.round(f/df))
         freq_index = np.argmin(np.abs(fft_freq - f))
         p[i] = np.angle(spectra[(freq_index)]) 
         a[i] = np.real(spectra[(freq_index)])
-        #print("{} {} {}".format(f,p[i],freq_index - 1))
-        #p[i] = np.angle(spectra[(2*freq_index)])  + np.pi
         i += 1
     return [p, a]
 
 def high_freq_approx(phase,freqs,distance,branch_num,min_vel,max_vel):
     p = -np.unwrap(phase)
-    p_branches = np.tile(p , reps = (branch_num,1))
-    c_branches = np.tile(2*np.pi*distance*freqs , reps = (branch_num,1))
+    p_branches = np.tile(p , reps = ((branch_num*2)+1,1))
+    c_branches = np.tile(2*np.pi*distance*freqs , reps = ((branch_num*2)+1,1))
     branches = np.arange(
-        start = -(branch_num-1),
-        stop = (branch_num+1),
+        start = -(2*branch_num),
+        stop = (2*branch_num)+1,
         step = 2) * np.pi
+    print(p_branches.shape)
     p_branches = (p_branches.transpose() - branches).transpose()
     p_branches = p_branches + (np.pi / 4)
     c_branches = c_branches / p_branches
     #c_branches[c_branches < min_vel] = np.nan
     #c_branches[c_branches > max_vel] = np.nan
-    
     return c_branches
 
 def real_part_crossings(amplitudes,freqs,distance,branch_num,min_vel,max_vel,plot = False):
     freq_zeros = utils.singal_utils.get_zero_crossings(freqs,amplitudes)
-    jn_zeros = scipy.special.jn_zeros(0,freq_zeros.size+branch_num)
+    jn_zeros = scipy.special.jn_zeros(0,freq_zeros.size+(branch_num*2)+1)
 
-    crossings = jn_zeros[0:branch_num]
+    crossings = jn_zeros[0:(branch_num*2)+1]
 
     jn_zeros = np.insert(jn_zeros, 0, np.flip(-crossings))
     
-    c_zeros = np.zeros((branch_num,freq_zeros.size))
+    c_zeros = np.zeros(((branch_num*2)+1,freq_zeros.size))
 
     adjust=0
 
-    for i in np.arange(branch_num):
+    for i in np.arange((branch_num*2)+1):
         
         c_zeros[i,:] = (2*np.pi*freq_zeros*distance)/jn_zeros[2*i-adjust:freq_zeros.size + 2*i-adjust]
-        adjust = 1
+        adjust = 0
     
     #c_zeros[c_zeros < min_vel] = np.nan
     #c_zeros[c_zeros > max_vel] = np.nan

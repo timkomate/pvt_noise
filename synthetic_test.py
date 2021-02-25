@@ -91,6 +91,9 @@ if __name__ == "__main__":
         max_vel=max_vel
     )
 
+    c_branches0[c_branches0 < min_vel] = np.nan
+    c_branches0[c_branches0 > max_vel] = np.nan
+
     c_branches1 = pvt.local_search(
         c_original = c_branches0,
         p_measured = -p,
@@ -108,21 +111,10 @@ if __name__ == "__main__":
         min_vel=min_vel,
         max_vel=max_vel
     )
-    
-    center_branch1 = pvt.pick_closest_curve(
-        model = model,
-        c_branches= c_branches1,
-        freqs = freqs,
-        fmin = fmin
-    )
-    
-    center_branch2 = pvt.pick_closest_curve(
-        model = model,
-        c_branches= c_branches2,
-        freqs = freq_zeros,
-        fmin = fmin
-    )
-    
+
+    c_branches2[c_branches2 < min_vel] = np.nan
+    c_branches2[c_branches2 > max_vel] = np.nan
+        
     if param.plot:
         utils.plotting_methods.plot_results(
             freqs=freqs,
@@ -138,19 +130,8 @@ if __name__ == "__main__":
             fmax = fmax
         )
     
-    mask1 = np.arange(
-        start= center_branch1-param.branch_to_save,
-        stop = center_branch1+param.branch_to_save+1,
-        step = 1
-    )
 
-    mask2 = np.arange(
-        start= center_branch2-param.branch_to_save,
-        stop = center_branch2+param.branch_to_save+1,
-        step = 1
-    )
-
-    c0, c1, c2 = c_branches0[mask1,:], c_branches1[mask1,:],c_branches2[mask2,:]
+    c0, c1, c2 = c_branches0, c_branches1,c_branches2
     
     utils.io_methods.save_results_ascii(
         freqs=freqs,
