@@ -8,6 +8,7 @@ class Config(object):
         self.plot = config.getboolean("CASE", "plot")
         self.overwrite = config.getboolean("CASE", "overwrite")
         self.save_plots = config.getboolean("CASE", "save_plots")
+        self.fileformat = config.get("CASE", "fileformat")
 
         #Sythetic
         self.background_model = config.get("SYNTHETIC", "background_model")

@@ -21,7 +21,8 @@ import glob
 if __name__ == "__main__":
     param = utils.parameter_init.Config("config.cfg")
     pool = multiprocessing.Pool(processes=param.cpus)
-    files = glob.glob("{}*.mat".format(param.input_path))
+    files = glob.glob("{}/*.mat".format(param.input_path))
+    print(files)
     pool.map(utils.pvt_driver.run, files)
 
 #TODO

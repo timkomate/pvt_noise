@@ -1,6 +1,7 @@
 import scipy.io
 import numpy as np
 import pandas as pd
+import asdf
 import json
 import os
 
@@ -71,7 +72,7 @@ def save_pv(filename,c_branches,distance,model,freqs,gamma,gammaw,
 
 def save_pv_format(filename,c_branches,distance,model,freqs,
             gamma,gammaw,lat1,lat2,lon1,lon2,nstack, n1, s1, n2, s2,
-            c_zeros = None, f_zeros = None):
+            c_zeros = None, f_zeros = None, fileformat = "mat"):
     dd = {
         "c_zeros": c_zeros,
         "f_zeros": f_zeros,
@@ -92,12 +93,17 @@ def save_pv_format(filename,c_branches,distance,model,freqs,
         "fs": model["freq"].to_numpy(),
         "pvs": model["phase_vel"].to_numpy()
     }
+    if(fileformat == "mat"):
+        scipy.io.savemat(
+            file_name=filename,
+            mdict=dd,
+            appendmat = True
+        )
+    elif (fileformat == "asdf"):
+        print("asdf")
+        af = asdf.AsdfFile(dd)
+        af.write_to(filename)
     
-    scipy.io.savemat(
-        file_name=filename,
-        mdict=dd,
-        appendmat = True
-    )
     print("{} saved".format(filename))
 
 def save_results_ascii(freqs,pv,filename):

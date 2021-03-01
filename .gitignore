@@ -11,6 +11,7 @@ __pycache__/
 *.json
 pv/
 *.text
+tests/
 logs/
 pvt_test.py
 numerical_test.py
