@@ -124,6 +124,7 @@ def measure_phase(freqs, t,ccf,dt,distance,gamma,gammaw):
         
         #measure the phase
         spectra = pyfftw.interfaces.numpy_fft.fft(ccf_w)
+        #unfiltered_spectra = pyfftw.interfaces.numpy_fft.fft(ccf)
         fft_freq = np.fft.fftfreq(ccf_w.size,dt)
         freq_index = np.argmin(np.abs(fft_freq - f))
         p[i] = np.angle(spectra[(freq_index)]) 
@@ -162,7 +163,7 @@ def real_part_crossings(amplitudes,freqs,distance,branch_num,min_vel,max_vel,plo
     for i in np.arange((branch_num*2)+1):
         
         c_zeros[i,:] = (2*np.pi*freq_zeros*distance)/jn_zeros[2*i-adjust:freq_zeros.size + 2*i-adjust]
-        adjust = 0
+        adjust = 1
     
     #c_zeros[c_zeros < min_vel] = np.nan
     #c_zeros[c_zeros > max_vel] = np.nan
@@ -170,8 +171,4 @@ def real_part_crossings(amplitudes,freqs,distance,branch_num,min_vel,max_vel,plo
     if plot:
         plt.plot(freqs, amplitudes)
         plt.show()
-
     return [freq_zeros, c_zeros]
-
-
-

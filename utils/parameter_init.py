@@ -27,6 +27,7 @@ class Config(object):
         self.min_vel = config.getfloat("GENERAL", "min_vel")
         self.max_vel = config.getfloat("GENERAL", "max_vel")
         self.min_distance = config.getfloat("GENERAL", "min_distance")
+        self.max_distance = config.getfloat("GENERAL", "max_distance")
         self.cdiff = config.getfloat("GENERAL", "cdiff")
         self.gamma = list(map(float,config.get("GENERAL", "gamma").split(",")))
         self.gammaw = list(map(float,config.get("GENERAL", "gammaw").split(",")))

@@ -135,6 +135,8 @@ def run(path):
 
         if(distance < param.min_distance):
             raise utils.pvt_exceptions.StationsTooClose(n1,s1,n2,s2)
+        if(distance > param.max_distance):
+            raise utils.pvt_exceptions.StationsTooFar(n1,s1,n2,s2)
 
         lon1 = data[n1][s1]["longitude"]
         lat1 = data[n1][s1]["latitude"]
@@ -237,6 +239,10 @@ def run(path):
         logger.info("{}::{:.2f}::{}::{}".format(path.split("/")[-1],distance, timer() - start, 2))
         return
     except utils.pvt_exceptions.StationsTooClose as e:
+        print(e)
+        logger.info("{}::{:.2f}::{}::{}".format(path.split("/")[-1],distance, timer() - start, 3))
+        return
+    except utils.pvt_exceptions.StationsTooFar as e:
         print(e)
         logger.info("{}::{:.2f}::{}::{}".format(path.split("/")[-1],distance, timer() - start, 3))
         return

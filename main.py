@@ -22,9 +22,7 @@ if __name__ == "__main__":
     param = utils.parameter_init.Config("config.cfg")
     pool = multiprocessing.Pool(processes=param.cpus)
     files = glob.glob("{}/*.mat".format(param.input_path))
-    print(files)
     pool.map(utils.pvt_driver.run, files)
 
 #TODO
-#Remove branches_to_save variable: OK
-#
+#Method to read mineos output
